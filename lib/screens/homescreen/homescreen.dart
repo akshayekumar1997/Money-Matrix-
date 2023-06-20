@@ -21,7 +21,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 236, 232, 232),
       appBar: AppBar(
-        title: Text("MONEY MASTER"),
+        title: Text("MONEY MATRIX"),
         centerTitle: true,
       ),
       body: SafeArea(
