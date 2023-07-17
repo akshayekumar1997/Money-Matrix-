@@ -55,20 +55,12 @@ class CategoryDb implements CategoryDbFunctions {
   }
   Future <void>deleteCategories(int id)async{
     final categoryDb=await Hive.openBox<CategoryModel>(CATEGORY_DB_NAME);
-    await categoryDb.delete(id);
+    await categoryDb.deleteAt(id);
   await  refreshUi();
   }
-Future<void> printAllCategories() async {
-  final categoryDb = await Hive.openBox<CategoryModel>(CATEGORY_DB_NAME);
-  final categories = categoryDb.values.toList();
-
-  for (final category in categories) {
-    print(category.toString());
-    if(categories.isEmpty){
-      print("empty category");
-    }
-  }
-}
 
   
 }
+
+  
+

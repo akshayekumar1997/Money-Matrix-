@@ -202,9 +202,11 @@ transaction.type==CategoryType.income?totalSum+=transaction.amount:totalSum-=tra
     }
     Sum(totalSum: totalSums, incomeSum: totalIncome, expenseSum: totalExpense);
   }
-
+TransactionDb.instance.transactionListNotifier.value = transactions;
+  setState(() {});
  }
 
+  
    
     }
 

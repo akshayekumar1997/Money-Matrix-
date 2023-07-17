@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:moneymaster/dbfunctions/categorydb/categorydb.dart';
@@ -20,7 +21,7 @@ class ExpenseCategoryList extends StatelessWidget {
                   title: Text(category.name),
                   trailing: IconButton(
                       onPressed: () {
-                        
+                        CategoryDb.instance.deleteCategories(index);
                       }, icon: const Icon(Icons.delete_forever),
                       color: Colors.red,),
                 ),

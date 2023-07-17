@@ -42,10 +42,12 @@ Future<void> showCategoryPopUp(BuildContext context) async {
                         name: name,
                         type: type,
                         id: DateTime.now().microsecondsSinceEpoch,
-                      );
-                      CategoryDb.instance.insertCategory(category);
+                      ); CategoryDb.instance.insertCategory(category).then((_) {
+                  CategoryDb.instance.getCategories(); // Update the categories
+                });
+                
                   
-                    
+                  
                       Navigator.of(ctx).pop();
                     },
                     child: const Text("Add")))
@@ -61,7 +63,7 @@ class RadioButton extends StatelessWidget {
   final String title;
   final CategoryType type;
 
-  CategoryType? _type;
+
 
   @override
   Widget build(BuildContext context) {

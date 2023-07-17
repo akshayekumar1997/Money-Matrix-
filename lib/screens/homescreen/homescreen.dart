@@ -253,9 +253,14 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: const Color(0xFF6A00FF),
         onPressed: () {
           if (HomeScreen.selectedIndexNotifier.value == 0) {
-            Navigator.of(context).pushNamed(AddTransactionScreen.routeName);
+            Navigator.of(context).pushNamed(AddTransactionScreen.routeName).then((_) {
+              calculateSum(); // Call calculateSum after adding a new transaction
+            }
+            );
           } else {
-            showCategoryPopUp(context);
+             showCategoryPopUp(context).then((_) {
+              calculateSum(); // Call calculateSum after adding a new category
+            });
           }
         },
         child: const Icon(Icons.add),

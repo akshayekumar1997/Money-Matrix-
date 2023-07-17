@@ -9,7 +9,9 @@ import 'package:moneymaster/dbmodel/categorymodel.dart';
 import 'package:intl/intl.dart';
 import '../../dbmodel/transaction/transaction_model.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+typedef void TransactionDeletedCallback(double totalSum, double incomeSum, double expenseSum);
 class TransactionScreen extends StatefulWidget {
+  
   const TransactionScreen({super.key});
 
   @override
@@ -36,8 +38,11 @@ class _TransactionScreenState extends State<TransactionScreen> {
                   startActionPane: ActionPane(motion: 
                   const ScrollMotion(), children: [
                     SlidableAction(onPressed: (context) async{
-                      TransactionDb.instance.deleteTransaction(_value.transactionId!);
-                     calculateSum();
+                      await TransactionDb.instance.deleteTransaction(_value.transactionId!);
+        
+    calculateSumDelete();
+    TransactionDb.instance.refreshUi();
+    setState(() {});
                     },
                     icon: Icons.delete_forever,
                     label: "delete",
@@ -79,7 +84,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
    return "${_splitDate.last}\n${_splitDate.first}";
    
   }
-  Future<void> calculateSum()async{
+  Future<void> calculateSumDelete()async{
     double totalSum=0;
     double incomeSum=0;
     double expenseSum=0;
@@ -93,8 +98,11 @@ class _TransactionScreenState extends State<TransactionScreen> {
         expenseSum -= transaction.amount;
       }
     }
-
-    setState(() {}); // Update the state to trigger UI rebuild
+ 
+  TransactionDb.instance.transactionListNotifier.value = transactions;
+  setState(() {
+    
+  }); // Update the state to trigger UI rebuild
     }
 
   }
