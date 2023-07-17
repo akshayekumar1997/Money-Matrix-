@@ -1,5 +1,7 @@
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
+
+
+// ignore_for_file: no_leading_underscores_for_local_identifiers
+
 import 'package:flutter/material.dart';
 import 'package:moneymaster/dbfunctions/categorydb/categorydb.dart';
 import 'package:moneymaster/dbfunctions/transactiondb_functions.dart';
@@ -7,9 +9,15 @@ import 'package:moneymaster/dbmodel/categorymodel.dart';
 import 'package:intl/intl.dart';
 import '../../dbmodel/transaction/transaction_model.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-class TransactionScreen extends StatelessWidget {
+class TransactionScreen extends StatefulWidget {
   const TransactionScreen({super.key});
 
+  @override
+  State<TransactionScreen> createState() => _TransactionScreenState();
+}
+
+class _TransactionScreenState extends State<TransactionScreen> {
+  
   @override
   Widget build(BuildContext context) {
     TransactionDb.instance.refreshUi();
@@ -20,17 +28,20 @@ class TransactionScreen extends StatelessWidget {
         return  ListView.separated(
               padding: const EdgeInsets.all(10),
               itemBuilder: (context, index) {
+                
                 final _value=newList[index];
                 return 
                 Slidable(
                   key: Key(_value.transactionId!),
                   startActionPane: ActionPane(motion: 
-                  ScrollMotion(), children: [
-                    SlidableAction(onPressed: (context) {
+                  const ScrollMotion(), children: [
+                    SlidableAction(onPressed: (context) async{
                       TransactionDb.instance.deleteTransaction(_value.transactionId!);
+                     calculateSum();
                     },
                     icon: Icons.delete_forever,
-                    label: "delete",)
+                    label: "delete",
+                    backgroundColor: Colors.red,)
                   ]),
                   child: 
                    Card(
@@ -38,12 +49,12 @@ class TransactionScreen extends StatelessWidget {
                     child: ListTile(
                       leading: CircleAvatar(
                         radius: 50,
+                        backgroundColor: _value.type==CategoryType.income?Colors.purple:Colors.redAccent,
                         child: Text(
                          parseDate(_value.date
                     ),
                           textAlign: TextAlign.center,
                         ),
-                        backgroundColor: _value.type==CategoryType.income?Colors.green:Colors.redAccent,
                       ),
                       title: Text("Rs ${_value.amount}"),
                       subtitle: Text(_value.category.name),
@@ -60,10 +71,31 @@ class TransactionScreen extends StatelessWidget {
         
         });
   }
+
   String parseDate(DateTime date){
     final _date =DateFormat.MMMd().format(date);
+    
     final _splitDate=_date.split(" ");
    return "${_splitDate.last}\n${_splitDate.first}";
-    // return "${date.day}\n ${date.month}";
+   
   }
+  Future<void> calculateSum()async{
+    double totalSum=0;
+    double incomeSum=0;
+    double expenseSum=0;
+    final transactions=await TransactionDb.instance.getAllTransactions();
+    for (var transaction in transactions){
+      transaction.type==CategoryType.income?totalSum-=transaction.amount:totalSum-=transaction.amount;
+      
+      if (transaction.type == CategoryType.income) {
+        incomeSum -= transaction.amount;
+      } else if (transaction.type == CategoryType.expense) {
+        expenseSum -= transaction.amount;
+      }
+    }
+
+    setState(() {}); // Update the state to trigger UI rebuild
+    }
+
   }
+

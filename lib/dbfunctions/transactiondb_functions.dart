@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:moneymaster/dbmodel/transaction/transaction_model.dart';
-import 'package:moneymaster/dbmodel/transactiondb.dart';
+
 const TRANSACTIONDB="Transaction_db";
 
 abstract class TransactionFunctions{
@@ -19,29 +19,29 @@ class TransactionDb implements TransactionFunctions{
   ValueNotifier <List<TransactionModel>>transactionListNotifier=ValueNotifier([]);
   @override
   Future<void> addTransaction(TransactionModel obj) async{
-final _db= await Hive.openBox<TransactionModel>(TRANSACTIONDB);
-_db.put(obj.transactionId, obj);
+final db= await Hive.openBox<TransactionModel>(TRANSACTIONDB);
+db.put(obj.transactionId, obj);
   }
 
   Future<void>refreshUi()async{
-    final _list=await getAllTransactions();
-   _list.sort((first, second) => second.date.compareTo(first.date),);         // compares the two adjacent list like i=1 & i=i+1
+    final list=await getAllTransactions();
+   list.sort((first, second) => second.date.compareTo(first.date),);         // compares the two adjacent list like i=1 & i=i+1
     transactionListNotifier.value.clear();
-    transactionListNotifier.value.addAll(_list);
+    transactionListNotifier.value.addAll(list);
     transactionListNotifier.notifyListeners();
   }
   
   @override
   Future<List<TransactionModel>> getAllTransactions() async{
-   final _db= await Hive.openBox<TransactionModel>(TRANSACTIONDB);
+   final db= await Hive.openBox<TransactionModel>(TRANSACTIONDB);
 
- return _db.values.toList();
+ return db.values.toList();
   }
   
   @override
   Future<void> deleteTransaction(String id)async {
-   final _db= await Hive.openBox<TransactionModel>(TRANSACTIONDB);
-   await  _db.delete(id);
+   final db= await Hive.openBox<TransactionModel>(TRANSACTIONDB);
+   await  db.delete(id);
    refreshUi();
   }
 

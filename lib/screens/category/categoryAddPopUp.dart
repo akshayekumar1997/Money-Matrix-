@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:moneymaster/dbfunctions/categorydb/categorydb.dart';
 import 'package:moneymaster/dbmodel/categorymodel.dart';
-import 'package:moneymaster/dbfunctions/categorydb/categorydb.dart';
+
 ValueNotifier<CategoryType> selectedCategoryNotifier =
     ValueNotifier(CategoryType.income);
 Future<void> showCategoryPopUp(BuildContext context) async {
-  final _nameEditingController = TextEditingController();
+  final nameEditingController = TextEditingController();
   showDialog(
       context: context,
       builder: (ctx) {
         return SimpleDialog(
-          title: Text("Add Category"),
+          title: const Text("Add Category"),
           children: [
             Padding(
-              padding: EdgeInsets.all(15),
+              padding: const EdgeInsets.all(15),
               child: TextFormField(
-                controller: _nameEditingController,
-                decoration: InputDecoration(
+                controller: nameEditingController,
+                decoration: const InputDecoration(
                     border: OutlineInputBorder(), hintText: "Category Name"),
               ),
             ),
             Padding(
-                padding: EdgeInsets.all(15),
+                padding: const EdgeInsets.all(15),
                 child: Row(
                   children: [
                     RadioButton(title: "Income", type: CategoryType.income),
@@ -29,29 +29,35 @@ Future<void> showCategoryPopUp(BuildContext context) async {
                   ],
                 )),
             Padding(
-                padding: EdgeInsets.all(15),
+                padding: const EdgeInsets.all(15),
                 child: ElevatedButton(
                     onPressed: () {
-                      final _name = _nameEditingController.text;
-                      if (_name.isEmpty) {
+                      final name = nameEditingController.text;
+                      if (name.isEmpty) {
                         return;
                       }
-                      final _type = selectedCategoryNotifier.value;
-                     final _category= CategoryModel(
-                          name: _name,
-                          type: _type,
-                          id: DateTime.now().microsecondsSinceEpoch);
-                          CategoryDb.instance.insertCategory(_category );
-                          Navigator.of(ctx).pop();
+                      final type = selectedCategoryNotifier
+                          .value; // Get the selected category type
+                      final category = CategoryModel(
+                        name: name,
+                        type: type,
+                        id: DateTime.now().microsecondsSinceEpoch,
+                      );
+                      CategoryDb.instance.insertCategory(category);
+                  
+                    
+                      Navigator.of(ctx).pop();
                     },
-                    child: Text("Add")))
+                    child: const Text("Add")))
           ],
         );
       });
 }
 
 class RadioButton extends StatelessWidget {
-  RadioButton({super.key, required this.title, required this.type});
+  RadioButton({Key? key, required this.title, required this.type})
+      : super(key: key);
+
   final String title;
   final CategoryType type;
 

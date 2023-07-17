@@ -53,3 +53,43 @@ class TransactionModelAdapter extends TypeAdapter<TransactionModel> {
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
+
+class SumAdapter extends TypeAdapter<Sum> {
+  @override
+  final int typeId = 4;
+
+  @override
+  Sum read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return Sum(
+      totalSum: fields[0] as double,
+      incomeSum: fields[1] as double,
+      expenseSum: fields[2] as double,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, Sum obj) {
+    writer
+      ..writeByte(3)
+      ..writeByte(0)
+      ..write(obj.totalSum)
+      ..writeByte(1)
+      ..write(obj.incomeSum)
+      ..writeByte(2)
+      ..write(obj.expenseSum);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SumAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}

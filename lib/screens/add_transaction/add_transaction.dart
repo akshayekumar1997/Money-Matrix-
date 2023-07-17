@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:moneymaster/dbfunctions/categorydb/categorydb.dart';
 import 'package:moneymaster/dbfunctions/transactiondb_functions.dart';
 import 'package:moneymaster/dbmodel/categorymodel.dart';
 import 'package:moneymaster/dbmodel/transaction/transaction_model.dart';
-
 class AddTransactionScreen extends StatefulWidget {
   const AddTransactionScreen({super.key});
   static const routeName = "addTransaction";
@@ -19,13 +16,19 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   CategoryType? _selectedCategoryType;
   CategoryModel? _selectedCategoryModel;
   String? _categoryId;
-  final _purposeTextEditingController=TextEditingController();
-  final _amountTextEditingController=TextEditingController();
+  final _purposeTextEditingController = TextEditingController();
+  final _amountTextEditingController = TextEditingController();
+    double totalSum = 0.0;
+  double incomeSum = 0.0;
+  double expenseSum = 0.0;
   @override
   void initState() {
+    
     _selectedCategoryType = CategoryType.income;
+    
     super.initState();
   }
+  
 
 //income or expense
   @override
@@ -38,7 +41,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   //purpose
                   children: [
-                    TextFormField( //give autovalidation
+                    TextFormField(
+                      //give autovalidation
                       controller: _purposeTextEditingController,
                       keyboardType: TextInputType.text,
                       decoration: const InputDecoration(hintText: "Purpose"),
@@ -46,7 +50,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     TextField(
                       controller: _amountTextEditingController,
                       keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         hintText: "Amount",
                       ),
                     ),
@@ -54,18 +58,18 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
                     TextButton.icon(
                       onPressed: () async {
-                        final _selectedDateTemp = await showDatePicker(
+                        final selectedDateTemp = await showDatePicker(
                             context: context,
                             initialDate: DateTime.now(),
                             firstDate: DateTime.now()
                                 .subtract(const Duration(days: 30)),
                             lastDate: DateTime.now());
-                        if (_selectedDateTemp == null) {
+                        if (selectedDateTemp == null) {
                           return;
                         } else {
-                          print(_selectedDateTemp.toString());
+                          print(selectedDateTemp.toString());
                           setState(() {
-                            _selectedDate = _selectedDateTemp;
+                            _selectedDate = selectedDateTemp;
                           });
                         }
                       },
@@ -127,51 +131,80 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         setState(() {
                           _categoryId = selectedValue;
                         });
-                        print(selectedValue);
+                       
                       },
                     ),
 
-                    ElevatedButton(onPressed: () {
-addTransaction();
-
-                    }, 
-                    child: const Text("Add"))
+                    ElevatedButton(
+                        onPressed: () {
+                          addTransaction();
+                          calculateSum();
+                        CategoryDb().refreshUi();
+                        },
+                        child: const Text("Add"))
                   ],
                 ))));
   }
-  Future<void>addTransaction()async{
-final _purposeText=_purposeTextEditingController.text;
-final _amountText=_amountTextEditingController.text;
-if(_purposeText.isEmpty){
-  return;
-}
-if (_amountText.isEmpty){
-return;
-}
-if(_categoryId==null){
-  return;
-}
-if(_selectedDate==null){
-  return;
-}
-final _parsedAmount=double.tryParse(_amountText);
-if(_parsedAmount==null){
-return;
-}
-if(_selectedCategoryModel==null){
-  return;
-}
-final _model=
-TransactionModel(purpose: _purposeText, 
-amount: _parsedAmount, 
-date: _selectedDate!, 
-type:_selectedCategoryType !, 
-category: _selectedCategoryModel!);
+
+  Future<void> addTransaction() async {
+    final purposeText = _purposeTextEditingController.text;
+    final amountText = _amountTextEditingController.text;
+    if (purposeText.isEmpty) {
+      return;
+    }
+    if (amountText.isEmpty) {
+      return;
+    }
+    if (_categoryId == null) {
+      return;
+    }
+    if (_selectedDate == null) {
+      return;
+    }
+    final parsedAmount = double.tryParse(amountText);
+    if (parsedAmount == null) {
+      return;
+    }
+    if (_selectedCategoryModel == null) {
+      return;
+    }
+    final model = TransactionModel(
+        purpose: purposeText,
+        amount: parsedAmount,
+        date: _selectedDate!,
+        type: _selectedCategoryType!,
+        category: _selectedCategoryModel!);
 //select date
 
 //selected category type
 //category Id
-await TransactionDb.instance.addTransaction(_model);
-Navigator.of(context).pop();
+    await TransactionDb.instance.addTransaction(model);
+    Navigator.of(context).pop();
   }
-}
+   //Function to calculate Total Sum , Total expense
+    Future <void>calculateSum()async{
+       double totalSums=0;
+    double totalExpense=0;
+       double totalIncome=0;
+       // Fetch tramsactions from the database
+ final transactions= await TransactionDb.instance.getAllTransactions();
+ 
+
+
+
+for (var transaction in transactions) {
+transaction.type==CategoryType.income?totalSum+=transaction.amount:totalSum-=transaction.amount;
+
+    if (transaction.type == CategoryType.income) {
+      totalIncome += transaction.amount;
+    } else if (transaction.type == CategoryType.expense) {
+      totalExpense += transaction.amount;
+    }
+    Sum(totalSum: totalSums, incomeSum: totalIncome, expenseSum: totalExpense);
+  }
+
+ }
+
+   
+    }
+

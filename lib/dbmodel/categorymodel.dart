@@ -32,4 +32,3 @@ class CategoryModel {
    return "{$name  $CategoryType}";
   }
 }
-
