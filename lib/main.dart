@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'screens/homescreen/homescreen.dart';
+import 'package:moneymaster/model/sum_update_provider.dart';
+import 'package:moneymaster/screens/homescreen/splash_screen.dart';
+import 'package:provider/provider.dart';
 import 'dbmodel/categorymodel.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'screens/add_transaction/add_transaction.dart';
@@ -38,13 +40,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(primaryColor: const Color(0xFF6A00FF)),
-      home: const HomeScreen(),
-      routes: {
-        AddTransactionScreen.routeName: (ctxt) => const AddTransactionScreen()
-      },
+    return 
+    ChangeNotifierProvider(
+      create: (context) => TransactionState(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(primaryColor: const Color(0xFF6A00FF)),
+        home: SplashScreen(),
+        routes: {
+          AddTransactionScreen.routeName: (ctxt) =>  AddTransactionScreen()
+        },
+      ),
     );
   }
 }

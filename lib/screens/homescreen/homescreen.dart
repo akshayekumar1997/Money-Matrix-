@@ -1,7 +1,11 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:moneymaster/dbmodel/categorymodel.dart';
+import 'package:moneymaster/model/sum_update_provider.dart';
 
 import 'package:moneymaster/screens/add_transaction/add_transaction.dart';
+import 'package:provider/provider.dart';
 import '../../dbfunctions/transactiondb_functions.dart';
 import 'widgets/bottomnavigationbar.dart';
 import 'package:moneymaster/screens/transaction/transactionscreen.dart';
@@ -24,17 +28,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    calculateSum(); // Call calculateSum function in initState
+  initializeData();
     super.initState();
   }
+    Future<void> initializeData() async {
+    final transactionState = context.read<TransactionState>();
+    final transactions = await TransactionDb.instance.getAllTransactions();
+    transactionState.calculateSums(transactions);
+  }
+
 
   // Rest of your code...
 
   // Function to calculate Total Sum, Total expense, and Total income
   Future<void> calculateSum() async {
-    totalSum = 0;
-    expenseSum = 0;
-    incomeSum = 0;
+    
 
     // Fetch transactions from the database
     final transactions = await TransactionDb.instance.getAllTransactions();
@@ -54,8 +62,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
 
-   
-   
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 236, 232, 232),
@@ -75,8 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Column(
                     children: [
                       Container(
-                        height: MediaQuery.of(context).size.height * 0.25,
-                        width: MediaQuery.of(context).size.width * 0.88,
+                       
                         decoration: BoxDecoration(
                           boxShadow: [
                             BoxShadow(
@@ -97,17 +102,22 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           children: [
                             const SizedBox(height: 20),
-                            const Text(
+                            const
+                             Text(
                               "Total Balance",
                               style: TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 14),
-                             Text(
-                              "₹ ${totalSum.toStringAsFixed(2)}",
-                              style: const TextStyle(
-                                  fontSize: 25, fontWeight: FontWeight.bold),
-                            ),
+                             Consumer<TransactionState>(
+                              builder: (context, provider, child) {
+                             return    Text("₹ ${provider.totalSum.toStringAsFixed(2)}",
+                               style:  TextStyle(
+                                    fontSize: 25, fontWeight: FontWeight.bold),
+                                                         );
+                              },
+                               
+                             ),
                             const SizedBox(height: 10),
                             Row(
                               children: [
@@ -154,11 +164,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ],
                                     ),
                                     const SizedBox(height: 5,),
-                                    Text("₹ ${incomeSum.toStringAsFixed(2)}",
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w900
-                                    ),)
-                          
+                                      Consumer<TransactionState>(
+                                        builder: (context, provider, child) {
+                                          return Text("₹ ${provider.incomeSum.toStringAsFixed(2)}",
+                                                                   style:  TextStyle(
+                                                                        fontSize: 25, fontWeight: FontWeight.bold),
+                                                                  );
+                                        },
+                                     
+                                      ),
                                     ]
                                     )
                                   ),
@@ -207,10 +221,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                     const SizedBox(
                                       height: 5,
                                     ),
-                                    Text("Rs ₹ ${expenseSum.toStringAsFixed(2)}"
-                                    ,style: const TextStyle(
-                                      fontWeight: FontWeight.w900
-                                    ),)
+                                      Consumer<TransactionState>(
+                                        builder: (context, value, child) {
+                                          return  Text("₹ ${value.expenseSum.toStringAsFixed(2)}",
+                                                                   style:  TextStyle(
+                                                                        fontSize: 25, fontWeight: FontWeight.bold),
+                                                                  );
+                                        },
+                                        
+                                      ),
                                       ]
                                       )
                                   ),

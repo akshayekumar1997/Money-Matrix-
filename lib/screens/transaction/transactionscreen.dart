@@ -7,9 +7,11 @@ import 'package:moneymaster/dbfunctions/categorydb/categorydb.dart';
 import 'package:moneymaster/dbfunctions/transactiondb_functions.dart';
 import 'package:moneymaster/dbmodel/categorymodel.dart';
 import 'package:intl/intl.dart';
+import 'package:moneymaster/model/sum_update_provider.dart';
+import 'package:moneymaster/screens/homescreen/homescreen.dart';
+import 'package:provider/provider.dart';
 import '../../dbmodel/transaction/transaction_model.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-typedef void TransactionDeletedCallback(double totalSum, double incomeSum, double expenseSum);
 class TransactionScreen extends StatefulWidget {
   
   const TransactionScreen({super.key});
@@ -19,9 +21,10 @@ class TransactionScreen extends StatefulWidget {
 }
 
 class _TransactionScreenState extends State<TransactionScreen> {
-  
+
   @override
   Widget build(BuildContext context) {
+      final transactionState = Provider.of<TransactionState>(context);
     TransactionDb.instance.refreshUi();
     CategoryDb.instance.refreshUi();
     return ValueListenableBuilder(
@@ -38,16 +41,16 @@ class _TransactionScreenState extends State<TransactionScreen> {
                   startActionPane: ActionPane(motion: 
                   const ScrollMotion(), children: [
                     SlidableAction(onPressed: (context) async{
-                      await TransactionDb.instance.deleteTransaction(_value.transactionId!);
-        
-    calculateSumDelete();
-    TransactionDb.instance.refreshUi();
-    setState(() {});
+                     await TransactionDb.instance.deleteTransaction(_value.transactionId!);
+                     final newtransactions=await  TransactionDb.instance.getAllTransactions();
+                    
+ transactionState.calculateSums(newtransactions);
                     },
                     icon: Icons.delete_forever,
                     label: "delete",
                     backgroundColor: Colors.red,)
-                  ]),
+                  ])
+                  ,
                   child: 
                    Card(
                     elevation: 0,
@@ -103,7 +106,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
   setState(() {
     
   }); // Update the state to trigger UI rebuild
+   
     }
 
   }
-

@@ -40,11 +40,21 @@ class CategoryDb implements CategoryDbFunctions {
 }
 
   @override
- Future<void> insertCategory(CategoryModel value) async {
+@override
+Future<void> insertCategory(CategoryModel value) async {
   final categoryDb = await Hive.openBox<CategoryModel>(CATEGORY_DB_NAME);
   await categoryDb.add(value);
-   
+
+  // Update the listeners immediately after adding to the database
+  if (value.type == CategoryType.income) {
+    incomeCategoryListner.value = [...incomeCategoryListner.value, value];
+    incomeCategoryListner.notifyListeners();
+  } else {
+    expenseCategoryListner.value = [...expenseCategoryListner.value, value];
+    expenseCategoryListner.notifyListeners();
+  }
 }
+
 
 
   @override
